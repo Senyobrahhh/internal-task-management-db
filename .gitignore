@@ -1,0 +1,6 @@
+*.mdf
+*.ndf
+*.ldf
+*.bak
+.env
+.vs/
