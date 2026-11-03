@@ -15,15 +15,19 @@ CREATE TABLE ian.t_tsk
 (
 	tsk_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	tsk_ttl NVARCHAR(200) NOT NULL,
-	tsk_pri VARCHAR(10) NOT NULL,
+	tsk_pri VARCHAR(10),
 	tsk_sta VARCHAR(15) NOT NULL,
 
 	CONSTRAINT ck_t_tsk_pri
 		CHECK(tsk_pri IN ('high', 'normal', 'low')),
 
 	CONSTRAINT ck_t_tsk_sta
-		CHECK(tsk_sta IN ('outstanding', 'in progress', 'complete', 'hold'))
+		CHECK(tsk_sta IN ('outstanding', 'in progress', 'complete', 'hold')),
 );
+
+
+DROP TABLE ian.t_tsk
+-- find out why the default doesnt defaukt to normal
 
 -- Task Details Table
 
@@ -36,10 +40,20 @@ CREATE TABLE ian.t_tsk_dtl
 	tim_spt_hrs INT,
 	tsk_not NVARCHAR(500),
 
-	CONSTRAINT pk_t_tsk_dtl
-		PRIMARY KEY(tsk_id)
-
 );
+
+ALTER TABLE ian.t_tsk_dtl
+ADD
+	tsk_dpt VARCHAR(50) NOT NULL,
+	tsk_loc VARCHAR(20) NOT NULL,
+
+	CONSTRAINT ck_t_tsk_dtl_dpt
+		CHECK (tsk_dpt IN ('service plan', 'ivhc', 'follow up', 'dms', 'support')),
+
+	CONSTRAINT ck_t_tsk_dtl_loc
+		CHECK (tsk_loc IN ('plovdiv', 'stz'))
+
+		DROP TABLE ian.t_tsk_dtl
 
 -- Employee Table
 
@@ -73,6 +87,12 @@ CREATE TABLE ian.t_emp_dtl
 	CONSTRAINT ck_t_emp_loc
 		CHECK(emp_loc IN ('plovdiv', 'stz'))
 );
+
+
+ALTER TABLE ian.t_emp_dtl
+ADD
+	emp_sta BIT NOT NULL
+
 
 -- Task Employees Table
 
