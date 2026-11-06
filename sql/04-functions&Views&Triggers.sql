@@ -10,7 +10,7 @@ RETURNS TABLE
 AS
 RETURN
 (
-	SELECT e.emp_id, emp_fst_nam, emp_lst_nam, emp_dpt
+	SELECT e.emp_id, emp_fst_nam, emp_lst_nam, emp_dpt, emp_loc, emp_sta
 	FROM ian.t_emp e
 	INNER JOIN ian.t_emp_dtl ed
 	ON e.emp_id = ed.emp_id
@@ -36,3 +36,7 @@ END AS emp_sta
 FROM ian.t_emp e
 INNER JOIN ian.t_emp_dtl ed
 ON e.emp_id = ed.emp_id
+
+----------------------------------------------------
+---------------------TRIGGERS-----------------------
+----------------------------------------------------

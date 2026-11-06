@@ -103,5 +103,4 @@ CREATE TABLE ian.t_tsk_emp
 
 	CONSTRAINT pk_t_tsk_emp
 		PRIMARY KEY(tsk_id, emp_id)
-
 );

@@ -113,9 +113,117 @@ END
 
 CREATE OR ALTER PROCEDURE ian.s_asn_emp_tsk
 (
-	
+	@p_tsk_id INT
 )
 AS
 BEGIN
+
+	DECLARE @p_avb_emp_fst_nam VARCHAR(100), @p_avb_emp_lst_nam VARCHAR(100)
+
+
+	-- VALUES
+
+	DECLARE @p_req_dpt VARCHAR(50) =
+	(
+		SELECT td.tsk_dpt
+		FROM ian.t_tsk t
+		INNER JOIN ian.t_tsk_dtl td
+		ON t.tsk_id = td.tsk_id
+		WHERE t.tsk_id = @p_tsk_id
+	)
+
+	DECLARE @p_req_loc VARCHAR(20) = 
+	(
+		SELECT td.tsk_loc
+		FROM ian.t_tsk t
+		INNER JOIN ian.t_tsk_dtl td
+		ON t.tsk_id = td.tsk_id
+		WHERE t.tsk_id = @p_tsk_id
+	)
+
+	DECLARE @p_avb_emp INT = 
+	(
+		SELECT TOP 1 emp_id
+		FROM ian.f_avb_emp_by_dpt(@p_req_dpt) e
+		WHERE emp_loc = @p_req_loc
+		AND emp_sta = 1
+		AND NOT EXISTS
+		(
+			SELECT 1
+			FROM ian.t_tsk_emp te
+			WHERE tsk_id = @p_tsk_id
+			AND te.emp_id = e.emp_id
+		)
+		ORDER BY emp_id
+	)
+
+	SELECT @p_avb_emp_fst_nam = emp_fst_nam, @p_avb_emp_lst_nam = emp_lst_nam
+	FROM ian.t_emp
+	WHERE emp_id = @p_avb_emp
+
 	
+-- VALIDATION
+	
+--------------------------	
+	IF NOT EXISTS
+	(
+		SELECT 1 tsk_id
+		FROM ian.t_tsk									-- Checks if task exists
+		WHERE tsk_id = @p_tsk_id
+	) 
+	BEGIN
+		;THROW 50001, 'Task Not Found!', 1;
+	END
+--------------------------
+	ELSE IF
+	(
+		SELECT tsk_sta
+		FROM ian.t_tsk									-- Checks if task is complete
+		WHERE tsk_id = @p_tsk_id
+	) = 'complete'
+	BEGIN 
+		;THROW 50001, 'Task Already Complete', 1;
+	END
+--------------------------
+	ELSE IF @p_avb_emp IS NULL 
+	BEGIN
+		;THROW 50001, 'No Available Employee!', 1;		-- Checks if there is an available employee
+	END
+--------------------------
+	ELSE
+	BEGIN
+		INSERT INTO ian.t_tsk_emp(tsk_id, emp_id)
+		VALUES(@p_tsk_id, @p_avb_emp)
+
+		IF
+		(
+			SELECT COUNT(*)						-- Checks if an employee has 3 or more tasks and assigns the 'busy status'/'0'
+			FROM ian.t_tsk_emp te
+			INNER JOIN ian.t_tsk t
+			ON te.tsk_id = t.tsk_id
+			WHERE emp_id = @p_avb_emp
+			AND tsk_sta <> 'complete'
+		) >= 3
+		BEGIN
+			UPDATE ian.t_emp_dtl
+			SET emp_sta = 0
+			WHERE emp_id = @p_avb_emp
+		END
+
+		UPDATE ian.t_tsk
+		SET tsk_sta = 'in progress' -- update the tsk status to busy
+		WHERE tsk_id = @p_tsk_id
+
+		UPDATE ian.t_tsk_dtl
+		SET tsk_str = SYSDATETIME() -- sets current time to tasks start time
+		WHERE tsk_id = @p_tsk_id
+		AND tsk_str IS NULL
+
+		PRINT 'Task assigned Successfully to: ' + @p_avb_emp_fst_nam + ' ' + @p_avb_emp_lst_nam
+	END
+
 END
+
+-- Change Status of Task  -----------------------------------------------------------------------------
+
+CREATE OR ALTER PROCEDURE ian.s_
