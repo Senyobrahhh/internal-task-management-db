@@ -27,7 +27,6 @@ CREATE TABLE ian.t_tsk
 
 
 DROP TABLE ian.t_tsk
--- find out why the default doesnt defaukt to normal
 
 -- Task Details Table
 
@@ -53,7 +52,7 @@ ADD
 	CONSTRAINT ck_t_tsk_dtl_loc
 		CHECK (tsk_loc IN ('plovdiv', 'stz'))
 
-		DROP TABLE ian.t_tsk_dtl
+--DROP TABLE ian.t_tsk_dtl
 
 -- Employee Table
 
@@ -104,3 +103,12 @@ CREATE TABLE ian.t_tsk_emp
 	CONSTRAINT pk_t_tsk_emp
 		PRIMARY KEY(tsk_id, emp_id)
 );
+
+-- Task Status History Table
+
+CREATE TABLE ian.t_tsk_sta_hst
+(
+	tsk_id INT NOT NULL,
+	tsk_sta VARCHAR(15) NOT NULL,
+	sta_chg_at DATETIME2(0) NOT NULL
+)
