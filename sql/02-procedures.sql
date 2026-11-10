@@ -383,9 +383,11 @@ BEGIN
 			SET tsk_end = SYSDATETIME()
 			WHERE tsk_id = @p_tsk_id
 
+			UPDATE ian.t_tsk_dtl
+			SET tim_spt_hrs = DATEDIFF(SECOND, tsk_str, tsk_end) / 3600
+
 			INSERT INTO ian.t_tsk_sta_hst (tsk_id, tsk_sta, sta_chg_at)
 			VALUES (@p_tsk_id, 'complete', SYSDATETIME())
-
 
 		END
 	END

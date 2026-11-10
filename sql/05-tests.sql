@@ -7,7 +7,14 @@ SELECT * FROM ian.f_avb_emp_by_dpt('dms')
 EXEC ian.s_asn_emp_tsk
 	@p_tsk_id = 1;
 
-	SELECT * FROM ian.t_tsk_emp
+EXEC ian.s
+
+-- QUICK COMMANDS
+
+
+
+SELECT * FROM ian.t_tsk_emp
+TRUNCATE TABLE ian.t_tsk_emp
 
 -- TO DO LIST
 
